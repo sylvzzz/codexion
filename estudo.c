@@ -5,10 +5,12 @@
 int emails = 7;
 pthread_mutex_t mutex;
 
-void *roll_dice()
+void *roll_dice(void *arg)
 {
     int *result = malloc(sizeof(int));
+    char *name = *(char **)arg;
     *result = (rand() % 6) + 1;
+    printf("Player %s rolled the dice...\n", name);
     return (void *) result;
 }
 
@@ -69,7 +71,16 @@ int main()
     pthread_t *thread;
     size_t size;
     int *result;
-    size = 20;
+    char **names;
+
+    size = 3;
+    names = malloc(size * sizeof(char *));
+
+    names[0] = "Diogo";
+    names[1] = "Sofia";
+    names[2] = "Cris";
+
+
 
     thread = malloc(sizeof(pthread_t) * size);
 
@@ -77,7 +88,7 @@ int main()
 
     for (size_t i = 0; i < size; i++)
     {
-        if (pthread_create(&thread[i], NULL, &roll_dice, NULL) != 0)
+        if (pthread_create(&thread[i], NULL, &roll_dice, &names[i]) != 0)
         {
             printf("Something went wrong...\n");
         }
