@@ -68,3 +68,13 @@ void	*monitor_routine(void *arg)
 	}
 	return (NULL);
 }
+
+
+int main(int ac, char **av)
+{
+	if (ac != 9)
+	{
+		printf("Incorrect number of arguments...");
+		return (1);
+	}
+}

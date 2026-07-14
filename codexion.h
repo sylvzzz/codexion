@@ -86,7 +86,9 @@ void	destroy_sim(t_sim *sim);
 
 /* ---- utils ---- */
 long	get_time_ms(void);
-int		ft_atoi_strict(const char *str, long *out);
+size_t	ft_strlen(const char *s);
+char	*ft_strchr(const char *s, int c);
+int		ft_atoi(const char *s, long *out);
 void	log_state(t_sim *sim, int coder_id, const char *msg);
 void	error_exit(const char *msg);
 
