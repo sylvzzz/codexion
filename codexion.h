@@ -10,8 +10,8 @@
 
 typedef enum e_scheduler
 {
-	SCHED_FIFO,
-	SCHED_EDF
+	SCHEDULER_FIFO,
+	SCHEDULER_EDF,
 }	t_scheduler;
 
 typedef enum e_state
