@@ -1,4 +1,4 @@
-#include "codexion.h"
+#include "../codexion.h"
 
 long	get_time_ms(void)
 {
@@ -62,4 +62,19 @@ int	ft_atoi(const char *s, long *out)
 		return (1);
 	*out = result * neg;
 	return (0);
+}
+
+void	error_exit(const char *msg)
+{
+	write(2, "Error: ", 7);
+	write(2, msg, strlen(msg));
+	write(2, "\n", 1);
+	exit(1);
+}
+
+void	log_state(t_sim *sim, int coder_id, const char *msg)
+{
+	pthread_mutex_lock(&sim->log_lock);
+	printf("%ld %d %s\n", get_time_ms() - sim->start_time_ms, coder_id, msg);
+	pthread_mutex_unlock(&sim->log_lock);
 }

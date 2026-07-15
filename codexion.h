@@ -27,12 +27,12 @@ typedef enum e_state
 // reading program args.
 typedef struct s_config
 {
-	int			num_coders;			// número de programadores/dongles
+	long		num_coders;			// número de programadores/dongles
 	long		time_to_burnout;	// prazo máximo sem compilar antes de esgotar
 	long		time_to_compile;	// duração da fase de compilação
 	long		time_to_debug;		// duração da fase de depuração
 	long		time_to_refactor;	// duração da fase de refactoring
-	int			compiles_required;	// nº de compilações para terminar a simulação
+	long		compiles_required;	// nº de compilações para terminar a simulação
 	long		dongle_cooldown;	// tempo de indisponibilidade após libertar um dongle
 	t_scheduler	scheduler;			// política de arbitragem (fifo ou edf)
 }	t_config;
@@ -91,6 +91,7 @@ char	*ft_strchr(const char *s, int c);
 int		ft_atoi(const char *s, long *out);
 void	log_state(t_sim *sim, int coder_id, const char *msg);
 void	error_exit(const char *msg);
+int		sim_should_stop(t_sim *sim);
 
 /* ---- coder / monitor threads (a implementar por ti) ---- */
 void	*coder_routine(void *arg);

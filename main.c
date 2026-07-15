@@ -35,7 +35,7 @@ static void	check_burnout(t_sim *sim, int i, long *now, long *deadline)
 	pthread_mutex_unlock(&sim->state_lock);
 	if (burned)
 	{
-		log_action(sim, i, "has burned out");
+		log_state(sim, i, "has burned out");
 		pthread_mutex_lock(&sim->stop_lock);
 		sim->stop = 1;
 		pthread_mutex_unlock(&sim->stop_lock);
@@ -74,7 +74,16 @@ int main(int ac, char **av)
 {
 	if (ac != 9)
 	{
-		printf("Incorrect number of arguments...");
+		printf("Incorrect number of arguments...\n");
 		return (1);
 	}
+	printf("Args parsed: \n");
+	printf("number_of_coders: %s\n", av[1]);
+	printf("time_to_burnout: %s\n", av[2]);
+	printf("time_to_compile: %s\n", av[3]);
+	printf("time_to_debug: %s\n", av[4]);
+	printf("time_to_refactor: %s\n", av[5]);
+	printf("number_of_compiles_required: %s\n", av[6]);
+	printf("dongle_cooldown: %s\n", av[7]);
+	printf("scheduler: %s\n", av[8]);
 }

@@ -1,19 +1,4 @@
-#include "codexion.h"
-
-void	log_state(t_sim *sim, int coder_id, const char *msg)
-{
-	pthread_mutex_lock(&sim->log_lock);
-	printf("%ld %d %s\n", get_time_ms() - sim->start_time_ms, coder_id, msg);
-	pthread_mutex_unlock(&sim->log_lock);
-}
-
-void	error_exit(const char *msg)
-{
-	write(2, "Error: ", 7);
-	write(2, msg, strlen(msg));
-	write(2, "\n", 1);
-	exit(1);
-}
+#include "../codexion.h"
 
 static int	validate_config(t_config *config)
 {

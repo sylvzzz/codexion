@@ -1,7 +1,6 @@
 NAME = codexion
 
-SRC =  estudo.c \
-		process.c \
+SRC = main.c src/sim.c src/parse.c src/utils.c
 
 OFILES = $(SRC:.c=.o)
 
@@ -9,7 +8,7 @@ OFILES = $(SRC:.c=.o)
 	cc -Wall -Werror -Wextra -c $< -o $(<:.c=.o)
 
 $(NAME): $(OFILES)
-	cc -Wall -Werror -Wextra $(OFILES) -o $(NAME)
+	cc -Wall -Werror -Wextra $(OFILES) -o $(NAME) -pthread
 
 all: $(NAME)
 
