@@ -13,9 +13,6 @@ $(NAME): $(OFILES)
 
 all: $(NAME)
 
-run:
-	./codexion
-
 clean:
 	rm -f $(OFILES)
 
