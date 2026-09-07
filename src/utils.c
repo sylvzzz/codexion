@@ -6,7 +6,7 @@
 /*   By: dbotelho <dbotelho@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/31 14:18:04 by dbotelho          #+#    #+#             */
-/*   Updated: 2026/09/02 23:06:18 by dbotelho         ###   ########.fr       */
+/*   Updated: 2026/09/07 23:12:22 by dbotelho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,34 +18,6 @@ long	get_time_ms(void)
 
 	gettimeofday(&tv, NULL);
 	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
-}
-
-size_t	ft_strlen(const char *s)
-{
-	int	i;
-
-	i = 0;
-	while (s[i])
-	{
-		i++;
-	}
-	return (i);
-}
-
-char	*ft_strchr(const char *s, int c)
-{
-	size_t	i;
-	size_t	n;
-
-	n = ft_strlen(s);
-	i = 0;
-	while (i <= n)
-	{
-		if ((unsigned char)s[i] == (unsigned char)c)
-			return ((char *)&s[i]);
-		i++;
-	}
-	return (NULL);
 }
 
 int	ft_atoi(const char *s, long *out)

@@ -6,7 +6,7 @@
 /*   By: dbotelho <dbotelho@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/31 14:18:04 by dbotelho          #+#    #+#             */
-/*   Updated: 2026/09/02 23:08:25 by dbotelho         ###   ########.fr       */
+/*   Updated: 2026/09/07 23:12:12 by dbotelho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ typedef struct s_coder
 	pthread_t		thread;
 	t_dongle		*left;
 	t_dongle		*right;
-	long			arrival_time_ms;
+	long			request_order;
 	long			last_compile_start_ms;
 	int				compiles_done;
 	t_state			state;
@@ -79,6 +79,7 @@ typedef struct s_sim
 	int				*wait_queue;
 	size_t			wait_size;
 	long			start_time_ms;
+	long			request_counter;
 	pthread_mutex_t	log_lock;
 	pthread_mutex_t	stop_lock;
 	int				stop;
@@ -95,8 +96,6 @@ void	destroy_sim(t_sim *sim);
 
 /* ---- utils ---- */
 long	get_time_ms(void);
-size_t	ft_strlen(const char *s);
-char	*ft_strchr(const char *s, int c);
 int		ft_atoi(const char *s, long *out);
 void	log_state(t_sim *sim, int coder_id, const char *msg);
 void	print_error(const char *msg);

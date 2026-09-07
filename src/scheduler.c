@@ -6,7 +6,7 @@
 /*   By: dbotelho <dbotelho@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/31 14:18:04 by dbotelho          #+#    #+#             */
-/*   Updated: 2026/09/02 23:06:31 by dbotelho         ###   ########.fr       */
+/*   Updated: 2026/09/08 00:07:57 by dbotelho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,8 @@ int	coder_has_priority(t_sim *sim, int a, int b)
 	}
 	else
 	{
-		aa = sim->coders[a].arrival_time_ms;
-		ab = sim->coders[b].arrival_time_ms;
+		aa = sim->coders[a].request_order;
+		ab = sim->coders[b].request_order;
 		if (aa != ab)
 			return (aa < ab);
 	}
@@ -50,6 +50,20 @@ static int	other_sharer(t_sim *sim, t_coder *coder, t_dongle *d)
 	return (other);
 }
 
+static int	other_can_hold_pair(t_coder *other, t_dongle *d)
+{
+	t_dongle	*paired;
+
+	paired = other->left;
+	if (paired == d)
+		paired = other->right;
+	if (paired == d)
+		return (0);
+	if (paired->in_use || paired->available_at_ms > get_time_ms())
+		return (0);
+	return (1);
+}
+
 static int	neighbor_blocks(t_sim *sim, t_coder *coder, t_dongle *d)
 {
 	int	other;
@@ -58,6 +72,8 @@ static int	neighbor_blocks(t_sim *sim, t_coder *coder, t_dongle *d)
 	other = other_sharer(sim, coder, d);
 	idx = coder->id - 1;
 	if (sim->coders[other].heap_pos < 0)
+		return (0);
+	if (!other_can_hold_pair(&sim->coders[other], d))
 		return (0);
 	return (coder_has_priority(sim, other, idx));
 }

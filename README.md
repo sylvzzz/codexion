@@ -10,7 +10,7 @@ Codexion sets up a circular coworking space where several coders share one Quant
 
 Each coder is a POSIX thread. Dongles sit between pairs of coders, one per pair, so each coder has a left and a right dongle. There is a single dongle for the single-coder case. Since the dongles are scarce and shared, coders need to coordinate safely. A separate **monitor thread** watches the coders: it sees when one burns out (a coder that does not start compiling within `time_to_burnout` ms after its last compile) and when every coder has reached `number_of_compiles_required`, and then it ends the simulation.
 
-The simulation takes 7 arguments, including `dongle_cooldown` (a dongle stays unused for a while after being released) and a scheduler policy, `fifo` (first in, first out) or `edf` (earliest deadline first). Arbitration runs through a hand-built priority queue (a binary heap).
+The simulation takes 8 arguments, including `dongle_cooldown` (a dongle stays unused for a while after being released) and a scheduler policy, `fifo` (first in, first out) or `edf` (earliest deadline first). Arbitration runs through a hand-built priority queue (a binary heap).
 
 ## Instructions
 
@@ -58,10 +58,11 @@ These are the concurrency problems the code deals with:
 - **Deadlocks (hold-and-wait).** The naive approach is to take the left dongle and then the right one. That can leave two neighbours sitting with one dongle each, waiting for the other to free theirs. Codexion avoids this by only letting a coder grab **both** dongles at once: `can_grab` checks that both dongles are free and out of cooldown before the grab, so a coder never holds one dongle while waiting for another. This removes the hold-and-wait condition (one of Coffman's conditions) and breaks any circular wait.
 - **Atomic double-grab.** The code grabs both dongles while holding a single arbitration mutex, so the pair is reserved together. No other coder can slip in and see half a grab.
 - **Cooldown handling.** After a coder releases a dongle, the code sets `available_at_ms` to `now + dongle_cooldown`, and `can_grab` refuses a dongle whose cooldown has not passed. A coder blocked on a dongle in cooldown sleeps with a timed wait and checks again, so it never gets stuck waiting for time to pass.
-- **Starvation and fairness.** The `fifo`/`edf` scheduler is a binary heap priority queue. With FIFO, the earlier arrival wins. With EDF, the coder with the earliest burnout deadline wins. Each coder's `heap_pos` tracks whether it is waiting, and sharing is serialized, so no coder is skipped quietly.
+- **Starvation and fairness.** The `fifo`/`edf` scheduler is a binary heap priority queue. FIFO order is recorded as a monotonically increasing `request_order` the moment a coder joins the wait queue (true arrival order). With FIFO, the earlier arrival wins; with EDF, the coder with the earliest burnout deadline wins. Each coder's `heap_pos` tracks whether it is waiting, so no coder is skipped quietly. A coder only blocks a neighbour on a shared dongle if it could actually lock that dongle's pair right now (`other_can_hold_pair`) — speculative waiting never stalls a grant that another coder can take.
 - **Burnout detection.** A dedicated monitor thread polls the coders and marks one burned out as soon as `now >= last_compile_start + time_to_burnout`. It prints the burnout message quickly, within the 10 ms the subject allows.
 - **Log serialization.** All state messages are printed under a logging mutex (`log_lock`), so two lines never mix.
 - **Impossible parameter sets.** When the workload simply cannot be met (for example, `time_to_compile` much longer than `time_to_burnout`), coders burn out and the simulation ends; it does not hang.
+- **Cooldown-serialized rings (solved).** On a ring of coders with `dongle_cooldown` > 0, granting dongles strictly one coder at a time leaves the time between two compiles of the same coder at `number_of_coders × (time_to_compile + dongle_cooldown)`. For `5 × 600 ms = 3000 ms` that is exactly `time_to_burnout`, a knife edge. Codexion avoids it by granting **disjoint pairs at the same time** (e.g. coders 1 and 3 hold separate dongles simultaneously), so each coder's period stays well under `time_to_burnout` and `./codexion 5 3000 200 200 200 10 400 fifo` completes in every run. The monitor also never burns a coder that is mid-compile. With an extreme cooldown (`800` ms) FIFO's effective ring period can still exceed `time_to_burnout` — that is inherent to strict arrival order under such a cooldown (EDF, which serves the most urgent coder first, completes).
 - **Invalid input.** `parse_args` rejects the wrong number of arguments, non-integers, negative numbers, and any scheduler other than `fifo`/`edf`, and exits with a clear error.
 
 ## Thread synchronization mechanisms
@@ -84,6 +85,8 @@ No shared state is ever changed outside a lock:
 - Stop flag: `stop_lock`
 
 Every writer holds the matching lock before touching shared memory, and the heap is only read under `arbitration_lock`, so the accesses never overlap and no data race can happen.
+
+The code was checked with `valgrind --tool=drd`: a contended run (all five coders racing for the dongles) reports `0 errors from 0 contexts`. `helgrind` reports a "pthread_cond broadcast: associated lock not held" warning pointing only at `wait_for_dongles`'s 1 ms `pthread_cond_timedwait`; this is a known helgrind false positive with glibc 2.34's adaptive condition variables under timed waits (no stack ever reaches our `compile_phase` broadcast, which holds `arbitration_lock`), and DRD, which shares no code with helgrind, reports nothing.
 
 ### Thread-safe communication between coders and the monitor
 

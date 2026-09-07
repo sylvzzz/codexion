@@ -39,7 +39,7 @@ static void	init_coders(t_sim *sim)
 		sim->coders[i].id = i + 1;
 		sim->coders[i].left = &sim->dongles[i];
 		sim->coders[i].right = &sim->dongles[(i - 1 + n) % n];
-		sim->coders[i].arrival_time_ms = 0;
+		sim->coders[i].request_order = 0;
 		sim->coders[i].last_compile_start_ms = sim->start_time_ms;
 		sim->coders[i].compiles_done = 0;
 		sim->coders[i].state = STATE_IDLE;
@@ -68,6 +68,7 @@ int	init_sim(t_sim *sim, t_config config)
 {
 	sim->config = config;
 	sim->start_time_ms = get_time_ms();
+	sim->request_counter = 1;
 	sim->stop = 0;
 	sim->coders = malloc(sizeof(t_coder) * config.num_coders);
 	if (!sim->coders)

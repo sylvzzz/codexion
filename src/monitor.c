@@ -50,6 +50,7 @@ static bool	check_burnout(t_sim *sim, int i, long *now, long *deadline)
 	*deadline = sim->coders[i].last_compile_start_ms
 		+ sim->config.time_to_burnout;
 	if (*now >= *deadline && sim->coders[i].state != STATE_BURNED_OUT
+		&& sim->coders[i].state != STATE_COMPILING
 		&& sim->coders[i].compiles_done < sim->config.compiles_required)
 	{
 		sim->coders[i].state = STATE_BURNED_OUT;
@@ -62,9 +63,9 @@ static bool	check_burnout(t_sim *sim, int i, long *now, long *deadline)
 		pthread_mutex_lock(&sim->stop_lock);
 		sim->stop = 1;
 		pthread_mutex_unlock(&sim->stop_lock);
-		return true;
+		return (true);
 	}
-	return false;
+	return (false);
 }
 
 void	*monitor_routine(void *arg)

@@ -50,7 +50,7 @@ static int	acquire_dongles(t_sim *sim, t_coder *coder)
 
 	acquired = 0;
 	pthread_mutex_lock(&sim->arbitration_lock);
-	coder->arrival_time_ms = get_time_ms();
+	coder->request_order = sim->request_counter++;
 	set_state(sim, coder, STATE_WAITING_DONGLE);
 	pq_push(sim, coder->id - 1);
 	while (!sim_should_stop(sim) && !acquired)
