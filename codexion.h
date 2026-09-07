@@ -19,6 +19,7 @@
 # include <string.h>
 # include <sys/time.h>
 # include <unistd.h>
+# include <stdbool.h>
 
 typedef enum e_scheduler
 {

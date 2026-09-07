@@ -40,7 +40,7 @@ static void	stop_if_done(t_sim *sim)
 	}
 }
 
-static void	check_burnout(t_sim *sim, int i, long *now, long *deadline)
+static bool	check_burnout(t_sim *sim, int i, long *now, long *deadline)
 {
 	int	burned;
 
@@ -62,7 +62,9 @@ static void	check_burnout(t_sim *sim, int i, long *now, long *deadline)
 		pthread_mutex_lock(&sim->stop_lock);
 		sim->stop = 1;
 		pthread_mutex_unlock(&sim->stop_lock);
+		return true;
 	}
+	return false;
 }
 
 void	*monitor_routine(void *arg)
@@ -78,7 +80,8 @@ void	*monitor_routine(void *arg)
 		i = 0;
 		while (i < sim->config.num_coders)
 		{
-			check_burnout(sim, i, &now, &deadline);
+			if (check_burnout(sim, i, &now, &deadline))
+				return (NULL);
 			i++;
 		}
 		stop_if_done(sim);
